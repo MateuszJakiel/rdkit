@@ -13,6 +13,7 @@
 #include <GraphMol/FileParsers/MolSupplier.h>
 #include <GraphMol/FileParsers/MolWriters.h>
 #include <GraphMol/SmilesParse/SmilesParse.h>
+#include <GraphMol/SmilesParse/SmilesWrite.h>
 #include <RDGeneral/BadFileException.h>
 #include <RDGeneral/StreamOps.h>
 
@@ -310,7 +311,7 @@ std::unique_ptr<ChemicalReaction> ReactionFromRdfEntry(
       else
         continue;
     }
-    rxn->addReactantTemplate(new ROMol(*m));
+    rxn->addReactantTemplate(ROMOL_SPTR(new ROMol(*m)));
   }
 
   // Add product templates
@@ -322,7 +323,7 @@ std::unique_ptr<ChemicalReaction> ReactionFromRdfEntry(
       else
         continue;
     }
-    rxn->addProductTemplate(new ROMol(*m));
+    rxn->addProductTemplate(ROMOL_SPTR(new ROMol(*m)));
   }
 
   // Reagents are not part of the stoichiometric templates in RDKit reactions;
