@@ -12,7 +12,7 @@
 #include <GraphMol/ChemReactions/Reaction.h>
 #include <catch2/catch_all.hpp>
 
-#include "../RDFParse/RDFParser.h"  // adjust include path as needed
+#include <GraphMol/RDFParser/RDFParser.h>
 
 using RDKit::RDF::RdfBlockIsReaction;
 using RDKit::RDF::EntriesFromRdfBlock;
