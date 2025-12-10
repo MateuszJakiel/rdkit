@@ -41,6 +41,7 @@
 #include <GraphMol/ChemReactions/PreprocessRxn.h>
 #include <GraphMol/ChemReactions/SanitizeRxn.h>
 #include <GraphMol/MarvinParse/MarvinParser.h>
+#include <GraphMol/RDFParser/RDFParser.h>
 #include <GraphMol/Depictor/DepictUtils.h>
 #include <GraphMol/FilterCatalog/FunctionalGroupHierarchy.h>
 
@@ -376,6 +377,43 @@ python::object ReactionsFromCDXMLBlock(python::object imolBlock, bool sanitize,
   python::list res;
   for (auto &rxn : rxns) {
     // take ownership of the data from the unique_ptr
+    res.append(std::shared_ptr<ChemicalReaction>(rxn.release()));
+  }
+  return python::tuple(res);
+}
+
+// RDFParser wrapper functions
+python::object ReactionsFromRdfFile(const char *filename) {
+  RDKit::RDF::RdfParserParams params;
+  std::vector<std::unique_ptr<ChemicalReaction>> rxns;
+  try {
+    rxns = RDKit::RDF::ReactionsFromRdfFile(filename, params);
+  } catch (RDKit::BadFileException &e) {
+    PyErr_SetString(PyExc_IOError, e.what());
+    throw python::error_already_set();
+  } catch (RDKit::FileParseException &e) {
+    BOOST_LOG(rdWarningLog) << e.what() << std::endl;
+  } catch (...) {
+  }
+  python::list res;
+  for (auto &rxn : rxns) {
+    res.append(std::shared_ptr<ChemicalReaction>(rxn.release()));
+  }
+  return python::tuple(res);
+}
+
+python::object ReactionsFromRdfBlock(python::object irdfBlock) {
+  std::string rdfText = pyObjectToString(irdfBlock);
+  RDKit::RDF::RdfParserParams params;
+  std::vector<std::unique_ptr<ChemicalReaction>> rxns;
+  try {
+    rxns = RDKit::RDF::ReactionsFromRdfBlock(rdfText, params);
+  } catch (RDKit::FileParseException &e) {
+    BOOST_LOG(rdWarningLog) << e.what() << std::endl;
+  } catch (...) {
+  }
+  python::list res;
+  for (auto &rxn : rxns) {
     res.append(std::shared_ptr<ChemicalReaction>(rxn.release()));
   }
   return python::tuple(res);
@@ -995,6 +1033,22 @@ of the replacements argument.",
       (python::arg("rxnblock"), python::arg("sanitize") = false,
        python::arg("removeHs") = false),
       "construct a tuple of ChemicalReactions from a string in CDXML format");
+
+  python::def("ReactionsFromRdfFile", RDKit::ReactionsFromRdfFile,
+              (python::arg("filename")),
+              "construct a tuple of ChemicalReactions from an RDF rxn file");
+
+  python::def("ReactionsFromRdfBlock", RDKit::ReactionsFromRdfBlock,
+              (python::arg("rdfblock")),
+              "construct a tuple of ChemicalReactions from a string in RDF format");
+
+  python::def("RdfFileIsReaction", RDKit::RDF::RdfFileIsReaction,
+              (python::arg("filename")),
+              "returns whether or not an RDF file contains reaction data");
+
+  python::def("RdfBlockIsReaction", RDKit::RDF::RdfBlockIsReaction,
+              (python::arg("rdfData")),
+              "returns whether or not an RDF block contains reaction data");
 
   python::def("ReactionToRxnBlock", RDKit::ChemicalReactionToRxnBlock,
               (python::arg("reaction"), python::arg("separateAgents") = false,

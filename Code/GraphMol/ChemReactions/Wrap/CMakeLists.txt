@@ -5,6 +5,7 @@ rdkit_python_extension(rdChemReactions
                        DEST Chem
                        LINK_LIBRARIES 
                        MarvinParser
+                       RDFParser
                        ChemReactions )
 
 add_pytest(pyChemReactions
@@ -15,3 +16,6 @@ add_pytest(pyChemReactionEnumerations
 
 add_pytest(pyChemReactionSanitize
          ${CMAKE_CURRENT_SOURCE_DIR}/testSanitize.py)
+
+add_pytest(pyRdfParser
+         ${CMAKE_CURRENT_SOURCE_DIR}/testRdfParser.py)
