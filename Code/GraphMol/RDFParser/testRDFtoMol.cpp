@@ -7,17 +7,18 @@
 //   - RDKit::RDF::EntriesFromRdfBlock
 //   - RDKit::RDF::ReactionFromRdfEntry
 //
-// If these functions are in a different namespace or path, update includes accordingly.
+// If these functions are in a different namespace or path, update includes
+// accordingly.
 
 #include <GraphMol/ChemReactions/Reaction.h>
 #include <catch2/catch_all.hpp>
 
 #include <GraphMol/RDFParser/RDFParser.h>
 
-using RDKit::RDF::RdfBlockIsReaction;
 using RDKit::RDF::EntriesFromRdfBlock;
-using RDKit::RDF::ReactionFromRdfEntry;
+using RDKit::RDF::RdfBlockIsReaction;
 using RDKit::RDF::RdfParserParams;
+using RDKit::RDF::ReactionFromRdfEntry;
 
 static const char *kSampleRdf = R"RDF($RDFILE 1
 $DATM 12/9/2025, 1:46:53 PM
@@ -132,7 +133,8 @@ TEST_CASE("RDFParse detects and parses simple RDF", "[RDFParse]") {
 
   const auto &entry = entries.front();
 
-  // Basic sanity: we expect three mol blocks in the section (2 reactants, 1 product)
+  // Basic sanity: we expect three mol blocks in the section (2 reactants, 1
+  // product)
   REQUIRE(entry.reactantMolBlocks.size() == 2);
   REQUIRE(entry.productMolBlocks.size() == 1);
 

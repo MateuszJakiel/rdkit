@@ -58,12 +58,13 @@ RDKIT_RDFPARSER_EXPORT std::vector<RdfReactionEntry> EntriesFromRdfBlock(
     const std::string &rdfText,
     const RdfParserParams &params = RdfParserParams());
 RDKIT_RDFPARSER_EXPORT std::vector<RdfReactionEntry> EntriesFromRdfFile(
-    const std::string &fName, const RdfParserParams &params = RdfParserParams());
+    const std::string &fName,
+    const RdfParserParams &params = RdfParserParams());
 
 // Convenience builders (similar to MarvinParser)
-RDKIT_RDFPARSER_EXPORT std::unique_ptr<ChemicalReaction>
-ReactionFromRdfEntry(const RdfReactionEntry &entry,
-                     const RdfParserParams &params = RdfParserParams());
+RDKIT_RDFPARSER_EXPORT std::unique_ptr<ChemicalReaction> ReactionFromRdfEntry(
+    const RdfReactionEntry &entry,
+    const RdfParserParams &params = RdfParserParams());
 
 RDKIT_RDFPARSER_EXPORT std::vector<std::unique_ptr<ChemicalReaction>>
 ReactionsFromRdfBlock(const std::string &rdfText,

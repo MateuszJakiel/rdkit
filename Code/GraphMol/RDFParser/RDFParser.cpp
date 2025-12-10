@@ -51,7 +51,8 @@ std::vector<std::string> splitReactionSections(const std::string &rdfText) {
   return sections;
 }
 
-// Helper: extract mol blocks within a reaction section (reactants then products)
+// Helper: extract mol blocks within a reaction section (reactants then
+// products)
 std::pair<std::vector<std::string>, std::vector<std::string>>
 molBlocksFromSection(const std::string &section, unsigned int reactantCount,
                      unsigned int productCount) {
@@ -67,10 +68,10 @@ molBlocksFromSection(const std::string &section, unsigned int reactantCount,
     size_t blockStart = found + 5;  // skip "$MOL\n"
     size_t endPos = section.find(END_MARKER, blockStart);
     if (endPos == std::string::npos) {
-      // if END missing, attempt to cut at next $DTYPE or $RXN to avoid spillover
+      // if END missing, attempt to cut at next $DTYPE or $RXN to avoid
+      // spillover
       size_t cut = section.find("$DTYPE", blockStart);
-      if (cut == std::string::npos)
-        cut = section.find(RXN_MARKER, blockStart);
+      if (cut == std::string::npos) cut = section.find(RXN_MARKER, blockStart);
       if (cut != std::string::npos) {
         parts.emplace_back(section.substr(blockStart, cut - blockStart));
       } else {
@@ -82,7 +83,8 @@ molBlocksFromSection(const std::string &section, unsigned int reactantCount,
       if (lineEnd == std::string::npos) {
         parts.emplace_back(section.substr(blockStart));
       } else {
-        parts.emplace_back(section.substr(blockStart, lineEnd + 1 - blockStart));
+        parts.emplace_back(
+            section.substr(blockStart, lineEnd + 1 - blockStart));
       }
     }
     start = blockStart;
@@ -216,15 +218,17 @@ std::vector<RdfReactionEntry> EntriesFromRdfBlock(
     // are in line 5 in CTFile. Here we attempt to infer counts from mol blocks:
     // For a robust implementation, port CTFile header parsing later.
     // Find mol blocks
-    // As we don't have counts, we will split all mol blocks and consider first half as reactants.
-    // To improve: parse line 4/5 with CTF component count format.
-    // For now, compute counts by detecting "$MOL" occurrences and assume equal split if unknown.
+    // As we don't have counts, we will split all mol blocks and consider first
+    // half as reactants. To improve: parse line 4/5 with CTF component count
+    // format. For now, compute counts by detecting "$MOL" occurrences and
+    // assume equal split if unknown.
 
     // Try to read counts from a standard CTFile RXN header pattern:
     unsigned int reactantCount = 0;
     unsigned int productCount = 0;
     {
-      // Attempt crude parse of header counts: find a line of six digits "rrrppp"
+      // Attempt crude parse of header counts: find a line of six digits
+      // "rrrppp"
       std::istringstream iss(sec);
       std::string line;
       unsigned int lineNo = 0;
@@ -255,13 +259,16 @@ std::vector<RdfReactionEntry> EntriesFromRdfBlock(
     reactantSmiles.reserve(reactantBlocks.size());
     productSmiles.reserve(productBlocks.size());
     for (const auto &mb : reactantBlocks) {
-      reactantSmiles.emplace_back(molBlockToSmiles(mb, params.exceptOnInvalidMolecule));
+      reactantSmiles.emplace_back(
+          molBlockToSmiles(mb, params.exceptOnInvalidMolecule));
     }
     for (const auto &mb : productBlocks) {
-      productSmiles.emplace_back(molBlockToSmiles(mb, params.exceptOnInvalidMolecule));
+      productSmiles.emplace_back(
+          molBlockToSmiles(mb, params.exceptOnInvalidMolecule));
     }
 
-    std::vector<std::string> reagentSmiles;  // reagents are in $DTYPE/$DATUM; handle later
+    std::vector<std::string>
+        reagentSmiles;  // reagents are in $DTYPE/$DATUM; handle later
 
     RdfReactionEntry entry;
     entry.reactantMolBlocks = reactantBlocks;

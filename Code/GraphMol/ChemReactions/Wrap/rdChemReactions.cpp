@@ -312,7 +312,8 @@ ChemicalReaction *ReactionFromSmarts(const char *smarts, python::dict replDict,
   return res;
 }
 
-ChemicalReaction *ReactionFromSmiles(const char *smiles, python::dict replDict) {
+ChemicalReaction *ReactionFromSmiles(const char *smiles,
+                                     python::dict replDict) {
   return ReactionFromSmarts(smiles, replDict, true);
 }
 
@@ -932,9 +933,10 @@ of the replacements argument.",
                   RDKit::ChemicalReactionToRxnSmarts,
               (python::arg("reaction")),
               "construct a reaction SMARTS string for a ChemicalReaction");
-  python::def("ReactionFromSmiles", RDKit::ReactionFromSmiles,
-              (python::arg("SMILES"), python::arg("replacements") = python::dict()), 
-              "construct a ChemicalReaction from a reaction SMILES string. \n\
+  python::def(
+      "ReactionFromSmiles", RDKit::ReactionFromSmiles,
+      (python::arg("SMILES"), python::arg("replacements") = python::dict()),
+      "construct a ChemicalReaction from a reaction SMILES string. \n\
 see the documentation for rdkit.Chem.MolFromSmiles for an explanation\n\
 of the replacements argument.",
       python::return_value_policy<python::manage_new_object>());
@@ -1038,9 +1040,10 @@ of the replacements argument.",
               (python::arg("filename")),
               "construct a tuple of ChemicalReactions from an RDF rxn file");
 
-  python::def("ReactionsFromRdfBlock", RDKit::ReactionsFromRdfBlock,
-              (python::arg("rdfblock")),
-              "construct a tuple of ChemicalReactions from a string in RDF format");
+  python::def(
+      "ReactionsFromRdfBlock", RDKit::ReactionsFromRdfBlock,
+      (python::arg("rdfblock")),
+      "construct a tuple of ChemicalReactions from a string in RDF format");
 
   python::def("RdfFileIsReaction", RDKit::RDF::RdfFileIsReaction,
               (python::arg("filename")),
