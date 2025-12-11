@@ -158,3 +158,38 @@ TEST_CASE("RDFParse detects and parses simple RDF", "[RDFParse]") {
   REQUIRE(rxn->getPropIfPresent("_RDFReactionSmiles", storedSmiles));
   REQUIRE_FALSE(storedSmiles.empty());
 }
+
+void testSingleReactionMetadata() {
+  std::string fname = RDBASE + "/Code/GraphMol/RDFParser/test_data/single_reaction.rdf";
+  RDKit::RDF::RdfParserParams params;
+  params.parseConditions = true;
+  auto entries = RDKit::RDF::EntriesFromRdfFile(fname, params);
+  TEST_ASSERT(entries.size() == 1);
+  const auto &entry = entries[0];
+
+  // We expect the metadata to contain all $DTYPE/$DATUM pairs from the file.
+  TEST_ASSERT(entry.rdfMetadata.size() == 7);
+  TEST_ASSERT(entry.rdfMetadata[0].first == "Name");
+  TEST_ASSERT(entry.rdfMetadata[0].second == "Published reaction");
+  TEST_ASSERT(entry.rdfMetadata[1].first == "Reference");
+  TEST_ASSERT(entry.rdfMetadata[1].second.find("10.1002/ANIE.200903055") !=
+              std::string::npos);
+  TEST_ASSERT(entry.rdfMetadata[3].first == "SMILES");
+  TEST_ASSERT(entry.rdfMetadata[3].second.find("CC(C)Cc1ccccc1") !=
+              std::string::npos);
+
+  auto rxns = RDKit::RDF::ReactionsFromRdfFile(fname, params);
+  TEST_ASSERT(rxns.size() == 1);
+  const auto &rxn = rxns[0];
+  std::string metaJson;
+  TEST_ASSERT(rxn->getPropIfPresent("_RDFMetadataJSON", metaJson));
+  TEST_ASSERT(metaJson.find("Name") != std::string::npos);
+  TEST_ASSERT(metaJson.find("Published reaction") != std::string::npos);
+  TEST_ASSERT(metaJson.find("10.1002/ANIE.200903055") != std::string::npos);
+}
+
+int main() {
+  // ...existing tests...
+  testSingleReactionMetadata();
+  return 0;
+}

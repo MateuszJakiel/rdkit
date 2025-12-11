@@ -154,6 +154,97 @@ std::string molBlockToSmiles(const std::string &molBlock,
   }
 }
 
+// Trim whitespace from both ends of a string (in-place)
+void trim(std::string &s) {
+  auto notSpace = [](int ch) { return !std::isspace(ch); };
+  s.erase(s.begin(),
+          std::find_if(s.begin(), s.end(), [&](char c) { return notSpace(c); }));
+  s.erase(std::find_if(s.rbegin(), s.rend(), [&](char c) { return notSpace(c); })
+              .base(),
+          s.end());
+}
+
+// Helper: parse $DTYPE / $DATUM metadata from a reaction section.
+// Pairs each $DTYPE <name> with the following $DATUM <value> line.
+// All pairs are appended to outMeta in the order encountered.
+void parseMetadataFromSection(
+    const std::string &section,
+    std::vector<std::pair<std::string, std::string>> &outMeta) {
+  std::istringstream iss(section);
+  std::string line;
+  std::string currentKey;
+
+  while (std::getline(iss, line)) {
+    // stop at terminal END line in RDF file
+    std::string raw = line;
+    trim(raw);
+    if (raw == "END") {
+      break;
+    }
+    if (raw.empty()) {
+      continue;
+    }
+
+    if (raw.rfind("$DTYPE", 0) == 0) {
+      std::string key = raw.substr(6);  // after "$DTYPE"
+      trim(key);
+      currentKey = key;
+    } else if (raw.rfind("$DATUM", 0) == 0) {
+      std::string value = raw.substr(6);  // after "$DATUM"
+      // preserve leading space after marker but trim leading whitespace from
+      // the payload
+      trim(value);
+      if (!currentKey.empty()) {
+        outMeta.emplace_back(currentKey, value);
+      }
+      // reset key so we require explicit $DTYPE for each $DATUM
+      currentKey.clear();
+    }
+  }
+}
+
+// Minimal JSON escaping for metadata serialization
+std::string escapeJsonString(const std::string &in) {
+  std::string out;
+  out.reserve(in.size() + 8);
+  for (char c : in) {
+    switch (c) {
+      case '\\':
+        out += "\\\\";
+        break;
+      case '"':
+        out += "\\\"";
+        break;
+      case '\n':
+        out += "\\n";
+        break;
+      case '\r':
+        out += "\\r";
+        break;
+      case '\t':
+        out += "\\t";
+        break;
+      default:
+        out += c;
+    }
+  }
+  return out;
+}
+
+std::string rdfMetadataToJson(
+    const std::vector<std::pair<std::string, std::string>> &meta) {
+  std::ostringstream oss;
+  oss << "[";
+  for (size_t i = 0; i < meta.size(); ++i) {
+    if (i) oss << ",";
+    oss << "{\"name\":\"" << escapeJsonString(meta[i].first)
+        << "\",\"value\":\"" << escapeJsonString(meta[i].second)
+        << "\"}";
+  }
+  oss << "]";
+  return oss.str();
+}
+
 }  // namespace
 
 bool RdfFileIsReaction(const std::string &fname) {
@@ -275,6 +366,11 @@ std::vector<RdfReactionEntry> EntriesFromRdfBlock(
     entry.productMolBlocks = productBlocks;
     entry.reagentMolBlocks = {};  // placeholder
 
+    // parse generic metadata from $DTYPE / $DATUM blocks
+    if (params.parseConditions) {
+      parseMetadataFromSection(sec, entry.rdfMetadata);
+    }
+
     entry.reactionSmiles =
         reactionSmilesFromLists(reactantSmiles, reagentSmiles, productSmiles);
 
@@ -348,6 +444,11 @@ std::unique_ptr<ChemicalReaction> ReactionFromRdfEntry(
   // Store the reaction SMILES for convenience
   rxn->setProp("_RDFReactionSmiles", entry.reactionSmiles);
 
+  // Store all RDF metadata as a JSON-encoded string property
+  if (!entry.rdfMetadata.empty()) {
+    rxn->setProp("_RDFMetadataJSON", rdfMetadataToJson(entry.rdfMetadata));
+  }
+
   return rxn;
 }
 
@@ -375,3 +476,4 @@ std::vector<std::unique_ptr<ChemicalReaction>> ReactionsFromRdfFile(
 
 }  // namespace RDF
 }  // namespace RDKit
+

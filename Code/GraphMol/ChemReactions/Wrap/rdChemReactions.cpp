@@ -400,7 +400,7 @@ python::object ReactionsFromRdfFile(const char *filename) {
   for (auto &rxn : rxns) {
     res.append(std::shared_ptr<ChemicalReaction>(rxn.release()));
   }
-  return python::tuple(res);
+  return res;
 }
 
 python::object ReactionsFromRdfBlock(python::object irdfBlock) {
@@ -417,7 +417,7 @@ python::object ReactionsFromRdfBlock(python::object irdfBlock) {
   for (auto &rxn : rxns) {
     res.append(std::shared_ptr<ChemicalReaction>(rxn.release()));
   }
-  return python::tuple(res);
+  return res;
 }
 
 python::object GetReactingAtoms(const ChemicalReaction &self,
@@ -974,7 +974,7 @@ of the replacements argument.",
                        const RDKit::SmilesWriteParams &,
                        std::uint32_t))RDKit::ChemicalReactionToCXRxnSmarts,
       (python::arg("reaction"), python::arg("params"),
-       python::arg("flags") = RDKit::SmilesWrite::CXSmilesFields::CX_ALL),
+       python::arg("flags") = static_cast<std::uint32_t>(RDKit::SmilesWrite::CXSmilesFields::CX_ALL)),
       "construct a reaction CXSMARTS string for a ChemicalReaction");
   python::def(
       "ReactionToCXSmiles",
@@ -982,7 +982,7 @@ of the replacements argument.",
                        const RDKit::SmilesWriteParams &,
                        std::uint32_t))RDKit::ChemicalReactionToCXRxnSmiles,
       (python::arg("reaction"), python::arg("params"),
-       python::arg("flags") = RDKit::SmilesWrite::CXSmilesFields::CX_ALL),
+       python::arg("flags") = static_cast<std::uint32_t>(RDKit::SmilesWrite::CXSmilesFields::CX_ALL)),
       "construct a reaction CXSMILES string for a ChemicalReaction");
 
   python::def(
@@ -1038,12 +1038,12 @@ of the replacements argument.",
 
   python::def("ReactionsFromRdfFile", RDKit::ReactionsFromRdfFile,
               (python::arg("filename")),
-              "construct a tuple of ChemicalReactions from an RDF rxn file");
+              "construct a list of ChemicalReactions from an RDF rxn file");
 
   python::def(
       "ReactionsFromRdfBlock", RDKit::ReactionsFromRdfBlock,
       (python::arg("rdfblock")),
-      "construct a tuple of ChemicalReactions from a string in RDF format");
+      "construct a list of ChemicalReactions from a string in RDF format");
 
   python::def("RdfFileIsReaction", RDKit::RDF::RdfFileIsReaction,
               (python::arg("filename")),

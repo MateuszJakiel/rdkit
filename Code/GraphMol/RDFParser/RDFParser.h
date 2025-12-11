@@ -18,6 +18,7 @@
 #include <istream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace RDKit {
@@ -37,6 +38,11 @@ struct RDKIT_RDFPARSER_EXPORT RdfReactionEntry {
   std::string reactionName;
   std::string comment;
   std::string registryNumber;
+
+  // All RDF metadata key/value pairs from $DTYPE / $DATUM blocks
+  // stored in the order they appear in the file. Duplicate keys are
+  // allowed and preserved.
+  std::vector<std::pair<std::string, std::string>> rdfMetadata;
 };
 
 // Parameters controlling parsing behavior
@@ -83,3 +89,4 @@ RDKIT_RDFPARSER_EXPORT void SplitReactionSmiles(
 }  // namespace RDKit
 
 #endif  // RD_RDFPARSER_H
+
