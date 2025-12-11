@@ -974,7 +974,7 @@ of the replacements argument.",
                        const RDKit::SmilesWriteParams &,
                        std::uint32_t))RDKit::ChemicalReactionToCXRxnSmarts,
       (python::arg("reaction"), python::arg("params"),
-       python::arg("flags") = RDKit::SmilesWrite::CXSmilesFields::CX_ALL),
+       python::arg("flags") = static_cast<std::uint32_t>(RDKit::SmilesWrite::CXSmilesFields::CX_ALL)),
       "construct a reaction CXSMARTS string for a ChemicalReaction");
   python::def(
       "ReactionToCXSmiles",
@@ -982,7 +982,7 @@ of the replacements argument.",
                        const RDKit::SmilesWriteParams &,
                        std::uint32_t))RDKit::ChemicalReactionToCXRxnSmiles,
       (python::arg("reaction"), python::arg("params"),
-       python::arg("flags") = RDKit::SmilesWrite::CXSmilesFields::CX_ALL),
+       python::arg("flags") = static_cast<std::uint32_t>(RDKit::SmilesWrite::CXSmilesFields::CX_ALL)),
       "construct a reaction CXSMILES string for a ChemicalReaction");
 
   python::def(
